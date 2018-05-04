@@ -1,0 +1,44 @@
+---
+- block:
+
+  - name: Install dnsmasq
+    yum:
+      name: dnsmasq
+      state: latest
+
+  - name: Render the config
+    template:
+      src: "dnsmasq.conf.j2"
+      dest: "/etc/dnsmasq.conf"
+      backup: yes
+    register: dnsmasq_conf_result
+
+  - name: Write the hosts file
+    template:
+      src: "dnsmasq.hosts.j2"
+      dest: "/etc/dnsmasq.hosts"
+      backup: yes
+    register: dnsmasq_hosts_result
+
+  - name: Restart dnsmasq when the configs change
+    systemd:
+      name: dnsmasq.service
+      state: restarted
+    when: dnsmasq_conf_result|changed or dnsmasq_hosts_result|changed
+
+  - name: Start and Enable dnsmasq
+    systemd:
+      name: dnsmasq.service
+      state: started
+      enabled: True
+  
+  - name: Open firewall ports
+    firewalld:
+      service: "{{ item }}"
+      zone: "{{ dnsmasq_firewalld_zone }}"
+      state: enabled
+    with_items:
+      - dhcp
+      - dns
+
+  become: True

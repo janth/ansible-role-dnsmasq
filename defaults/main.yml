@@ -1,0 +1,24 @@
+---
+
+dnsmasq_domain_name: ""
+
+dnsmasq_dhcp_ranges:
+  - network: "10.0.0.0"
+    netmask: "255.255.255.0"
+
+dnsmasq_firewalld_zone: "internal"
+
+dnsmasq_host_list: []
+#  - name: host1
+#    mac: aa:bb:cc:dd:ee:ff
+#    address: 10.0.0.101
+#
+#  - name: host2
+#    mac: 11:22:33:44:55:66
+#    address: 10.0.0.102
+
+dnsmasq_lease_time: "12h"
+
+dnsmasq_listen_interfaces:
+  - "eth0"
+
