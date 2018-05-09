@@ -41,7 +41,7 @@ domain={{ dnsmasq_domain_name }}
 
 # Static DHCP Ranges
 {% for range in dnsmasq_dhcp_ranges %}
-dhcp-range={% if range.tag %}tag:{{ range.tag }},{% endif %}{{ range.network }},{{ range.netmask }},static
+dhcp-range={% if 'tag' in range %}tag:{{ range.tag }},{% endif %}{{ range.network }},static
 {% endfor %}
 
 # Static DHCP Leases
