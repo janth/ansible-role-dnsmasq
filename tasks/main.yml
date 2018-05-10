@@ -4,7 +4,7 @@
   - name: Install dnsmasq
     yum:
       name: dnsmasq
-      state: latest
+      state: installed
 
   - name: Render the config
     template:
@@ -24,7 +24,7 @@
     systemd:
       name: dnsmasq.service
       state: restarted
-    when: dnsmasq_conf_result|changed or dnsmasq_hosts_result|changed
+    when: dnsmasq_conf_result is changed or dnsmasq_hosts_result is changed
 
   - name: Start and Enable dnsmasq
     systemd:
