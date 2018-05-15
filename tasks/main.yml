@@ -35,6 +35,8 @@
   - name: Open firewall ports
     firewalld:
       service: "{{ item }}"
+      permanent: true
+      immediate: true
       zone: "{{ dnsmasq_firewalld_zone }}"
       state: enabled
     with_items:
