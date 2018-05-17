@@ -32,7 +32,7 @@ interface={{ interface }}
 #no-hosts
 # or if you want it to read another file, as well as /etc/hosts, use
 # this.
-addn-hosts=/etc/dnsmasq.hosts
+#addn-hosts=/etc/dnsmasq.hosts
 
 # Set this (and domain: see below) if you want to have a domain
 # automatically added to simple names in a hosts-file.
@@ -41,12 +41,13 @@ domain={{ dnsmasq_domain_name }}
 
 # Static DHCP Ranges
 {% for range in dnsmasq_dhcp_ranges %}
-dhcp-range={% if 'tag' in range %}tag:{{ range.tag }},{% endif %}{{ range.network }},static
+dhcp-range={% if 'tag' in range %}set:{{ range.tag }},{% endif %}{{ range.network }},static
 {% endfor %}
 
 # Static DHCP Leases
 {% for host in dnsmasq_host_list %}
-dhcp-host={{ host.mac }},{{ host.name }},{{ host.address }},{{ dnsmasq_lease_time }}
+dhcp-host={{ host.mac }},{{ host.name }},{{ host.address }},{{ dnsmasq_lease_time }}{% if 'tag' in host %},set:{{ host.tag }}{% endif %}
+
 {% endfor %}
 
 # Ignore any clients which are not specified in dhcp-host lines
@@ -65,6 +66,7 @@ dhcp-ignore=tag:!known
 # http://www.isc.org/files/auth.html
 dhcp-authoritative
 
+dhcp-option=tag:nodefroute,option:router
 # Run an executable when a DHCP lease is created or destroyed.
 # The arguments sent to the script are "add" or "del",
 # then the MAC address, the IP address and finally the hostname

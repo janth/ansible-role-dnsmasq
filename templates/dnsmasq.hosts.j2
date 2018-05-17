@@ -1,5 +1,0 @@
-# {{ ansible_managed }}
-
-{% for host in dnsmasq_host_list %}
-{{ host.address }}  {{ host.name }}.{{ dnsmasq_domain_name }} {{ host.name }}
-{% endfor %}

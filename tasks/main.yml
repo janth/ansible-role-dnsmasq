@@ -13,11 +13,13 @@
       backup: yes
     register: dnsmasq_conf_result
 
-  - name: Write the hosts file
-    template:
-      src: "dnsmasq.hosts.j2"
-      dest: "/etc/dnsmasq.hosts"
-      backup: yes
+  - name: Add the block to /etc/hosts
+    blockinfile:
+      path: /etc/hosts
+      block: |
+        {% for host in dnsmasq_host_list %}
+        {{ host.address }}  {{ host.name }}.{{ dnsmasq_domain_name }} {{ host.name }}
+        {% endfor %}
     register: dnsmasq_hosts_result
 
   - name: Restart dnsmasq when the configs change
