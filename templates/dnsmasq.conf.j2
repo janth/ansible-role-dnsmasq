@@ -81,6 +81,16 @@ dhcp-option=tag:nodefroute,option:router
 # the line below.
 #dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 
+{% if dnsmasq_provide_pxe %}
+enable-tftp
+tftp-root={{ dnsmasq_tftp_path }}
+
+dhcp-match=efiboot,option:client-arch,7
+
+dhcp-boot=tag:efiboot,grubx64.efi
+dhcp-boot=tag:!efiboot,pxelinux.0
+
+{% endif %}
 # Set the cachesize here.
 #cache-size=150
 

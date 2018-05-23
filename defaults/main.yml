@@ -9,16 +9,24 @@ dnsmasq_dhcp_ranges:
 dnsmasq_firewalld_zone: "internal"
 
 dnsmasq_host_list: []
-#  - name: host1
-#    mac: aa:bb:cc:dd:ee:ff
-#    address: 10.0.0.101
-#
-#  - name: host2
-#    mac: 11:22:33:44:55:66
-#    address: 10.0.0.102
+#  - { name: host1, mac: aa:bb:cc:dd:ee:ff, address: 10.0.0.101 }
+#  - { name: host2, mac: 11:22:33:44:55:66, address: 10.0.0.102 }
 
 dnsmasq_lease_time: "12h"
 
 dnsmasq_listen_interfaces:
   - "eth0"
 
+dnsmasq_provide_pxe: False
+
+dnsmasq_tftp_path: "/var/opt/tftpboot"
+
+dnsmasq_pxe_title: "PXE Menu"
+
+dnsmasq_pxe_menu_default: "BootLocal"
+
+dnsmasq_pxe_menu: []
+#  - name: centos_7.4
+#    label: Install CentOS 7.4
+#    kernel: centos/7.4.1708/vmlinuz
+#    append: initrd=centos/7.4.1708/initrd.img ksdevice=bootif ip=dhcp

@@ -6,6 +6,54 @@
       name: dnsmasq
       state: installed
 
+  - when: dnsmasq_provide_pxe
+    block:
+    - name: Install syslinux and grub2-efi
+      yum:
+        name: "{{ item }}"
+        state: installed
+      with_items: 
+        - syslinux
+        - grub2-efi-x64
+    
+    - name: Create the TFTP server path
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        mode: 0755
+      with_items:
+        - "{{ dnsmasq_tftp_path }}"
+        - "{{ dnsmasq_tftp_path }}/pxelinux.cfg"
+
+    - name: Copy bootloader files
+      copy:
+        src: "{{ item }}"
+        dest: "{{ dnsmasq_tftp_path }}"
+        remote_src: true
+        backup: yes
+      ignore_errors: "{{ ansible_check_mode }}"
+      with_items:
+        - "/usr/share/syslinux/pxelinux.0"
+        - "/usr/share/syslinux/menu.c32"
+        - "/usr/share/syslinux/memdisk"
+        - "/usr/share/syslinux/mboot.c32"
+        - "/usr/share/syslinux/chain.c32"
+        - "/boot/efi/EFI/centos/grubx64.efi"
+
+    - name: Render the PXE Menu
+      template:
+        src: "pxe-default.j2"
+        dest: "{{ dnsmasq_tftp_path }}/pxelinux.cfg/default"
+        mode: 0755
+
+    - name: Set SELinux context when SELinux is enabled
+      sefcontext:
+        target: '{{ dnsmasq_tftp_path }}(/.*)?'
+        setype: tftpdir_t
+      when: ansible_selinux.status == 'enabled'
+
+
   - name: Render the config
     template:
       src: "dnsmasq.conf.j2"
@@ -13,7 +61,7 @@
       backup: yes
     register: dnsmasq_conf_result
 
-  - name: Add the block to /etc/hosts
+  - name: Add hosts block to /etc/hosts
     blockinfile:
       path: /etc/hosts
       block: |
@@ -44,5 +92,6 @@
     with_items:
       - dhcp
       - dns
+      - tftp
 
   become: True
