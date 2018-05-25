@@ -8,14 +8,6 @@
 
   - when: dnsmasq_provide_pxe
     block:
-    - name: Install syslinux and grub2-efi
-      yum:
-        name: "{{ item }}"
-        state: installed
-      with_items: 
-        - syslinux
-        - grub2-efi-x64
-    
     - name: Create the TFTP server path
       file:
         path: "{{ item }}"
@@ -29,23 +21,22 @@
     - name: Copy bootloader files
       copy:
         src: "{{ item }}"
-        dest: "{{ dnsmasq_tftp_path }}"
-        remote_src: true
-        backup: yes
-      ignore_errors: "{{ ansible_check_mode }}"
-      with_items:
-        - "/usr/share/syslinux/pxelinux.0"
-        - "/usr/share/syslinux/menu.c32"
-        - "/usr/share/syslinux/memdisk"
-        - "/usr/share/syslinux/mboot.c32"
-        - "/usr/share/syslinux/chain.c32"
-        - "/boot/efi/EFI/centos/grubx64.efi"
-
-    - name: Render the PXE Menu
-      template:
-        src: "pxe-default.j2"
-        dest: "{{ dnsmasq_tftp_path }}/pxelinux.cfg/default"
+        dest: "{{ dnsmasq_tftp_path }}/{{ item }}"
+        owner: root
         mode: 0755
+      with_items:
+        - pxelinux.0
+        - menu.c32
+        - grubx64.efi
+
+    - name: Render the PXE menus
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ dnsmasq_tftp_path }}/{{ item.dest }}"
+        mode: 0644
+      with_items:
+        - { src: pxe-default.j2, dest: pxelinux.cfg/default }
+        - { src: grub.cfg.j2, dest: grub.cfg }
 
     - name: Set SELinux context when SELinux is enabled
       sefcontext:

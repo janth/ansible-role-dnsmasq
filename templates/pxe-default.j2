@@ -27,6 +27,7 @@ LABEL BootLocal
 LABEL {{ item.name }}
     MENU LABEL {{ item.label }}
     KERNEL {{ item.kernel }}
+    {% if 'initrd' in item %}INITRD {{ item.initrd }}{% endif %}{{ '' }}
     {% if 'append' in item %}APPEND {{ item.append }}{% endif %}
 
 {% endfor %}

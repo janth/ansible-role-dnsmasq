@@ -1,0 +1,78 @@
+with_gfx=0
+
+gfxmode=auto
+lang=en_US
+search --no-floppy --file / --set
+prefix=($root)
+
+insmod efi_gop
+insmod efi_uga
+insmod gzio
+insmod gettext
+
+color_normal=light-gray/black
+color_highlight=white/light-gray
+
+if [ "$with_gfx" = 1 ] ; then
+  insmod gfxterm
+  insmod gfxmenu
+  insmod png
+
+  terminal_output gfxterm
+fi
+
+if sleep --interruptible 0 ; then
+  timeout=300
+fi
+
+menuentry "Bootlocal" {
+  unset root
+  echo Chainloading Grub2 EFI from ESP, available devices:
+  ls
+  echo -n "Probing ESP partition ... "
+  search --file --no-floppy --set=root /EFI/BOOT/BOOTX64.EFI
+  echo found $root
+  sleep 2
+  if [ -f ($root)/EFI/BOOT/grubx64.efi ]; then
+    chainloader ($root)/EFI/BOOT/grubx64.efi
+
+  elif [ -f ($root)/EFI/fedora/grubx64.efi ]; then
+    chainloader ($root)/EFI/fedora/grubx64.efi
+
+  elif [ -f ($root)/EFI/redhat/grubx64.efi ]; then
+    chainloader ($root)/EFI/redhat/grubx64.efi
+
+  elif [ -f ($root)/EFI/centos/grubx64.efi ]; then
+    chainloader ($root)/EFI/centos/grubx64.efi
+
+  elif [ -f ($root)/EFI/debian/grubx64.efi ]; then
+    chainloader ($root)/EFI/debian/grubx64.efi
+
+  elif [ -f ($root)/EFI/ubuntu/grubx64.efi ]; then
+    chainloader ($root)/EFI/ubuntu/grubx64.efi
+
+  elif [ -f ($root)/EFI/Microsoft/grubx64.efi ]; then
+    chainloader ($root)/EFI/Microsoft/grubx64.efi
+
+  elif [ -f ($root)/EFI/EFI/grubx64.efi ]; then
+    chainloader ($root)/EFI/EFI/grubx64.efi
+    else
+    echo File grubx64.efi not found on ESP.
+    echo Update 'pxegrub2_chainload' paths array with:
+    ls ($root)/EFI
+    echo The system will halt in 2 minutes or
+    echo press ESC to halt immediately.
+    sleep -i 120
+    halt --no-apm
+  fi
+}
+
+{% for item in dnsmasq_pxe_menu %}
+menuentry '{{ item.label }}' {
+  linuxefi {{ item.kernel }} {% if 'append' in item %}-- {{ item.append }}{% endif %}
+  
+  {% if 'initrd' in item %}initrdefi {{ item.initrd }}{% endif %}
+
+}
+
+{% endfor %}
