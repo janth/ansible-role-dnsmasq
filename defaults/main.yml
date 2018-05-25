@@ -25,6 +25,10 @@ dnsmasq_pxe_title: "PXE Menu"
 
 dnsmasq_pxe_menu_default: "BootLocal"
 
+dnsmasq_get_tftp_files: []
+#  - url: file:///path/to/a/kernel
+#    dest: centos/7.4.1708/vmlinuz
+
 dnsmasq_pxe_menu: []
 #  - name: centos_7.4
 #    label: Install CentOS 7.4

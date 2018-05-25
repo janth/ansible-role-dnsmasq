@@ -38,6 +38,21 @@
         - { src: pxe-default.j2, dest: pxelinux.cfg/default }
         - { src: grub.cfg.j2, dest: grub.cfg }
 
+    - name: Make directories for any files that should be on the TFTP server
+      file:
+        path: "{{ dnsmasq_tftp_path }}/{{ item.dest | dirname }}"
+        state: directory
+        owner: root
+        mode: 0755
+      with_items: "{{ dnsmasq_get_tftp_files }}"
+
+    - name: Get any files that should be on the TFTP server
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ dnsmasq_tftp_path}}/{{ item.dest }}"
+        mode: 0644
+      with_items: "{{ dnsmasq_get_tftp_files }}"
+
     - name: Set SELinux context when SELinux is enabled
       sefcontext:
         target: '{{ dnsmasq_tftp_path }}(/.*)?'
