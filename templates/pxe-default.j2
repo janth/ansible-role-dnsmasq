@@ -3,7 +3,7 @@
 SERIAL 0 115200
 
 # Use color menu
-default menu.c32
+DEFAULT {{ dnsmasq_pxe_menu_default }}
 
 # only show boot prompt if certain key is held down, or caps/scroll is on
 PROMPT 0
@@ -15,7 +15,7 @@ TIMEOUT 300
 TOTALTIMEOUT 600
 
 # Default image if we run out of time
-ONTIMEOUT {{ dnsmasq_pxe_menu_default }}
+ONTIMEOUT {{ dnsmasq_pxe_menu_ontimeout }}
 
 MENU TITLE {{ dnsmasq_pxe_title }}
 

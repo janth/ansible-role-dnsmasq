@@ -23,7 +23,9 @@ dnsmasq_tftp_path: "/var/opt/tftpboot"
 
 dnsmasq_pxe_title: "PXE Menu"
 
-dnsmasq_pxe_menu_default: "BootLocal"
+dnsmasq_pxe_menu_default: "menu.c32"
+
+dnsmasq_pxe_menu_ontimeout: "Bootlocal"
 
 dnsmasq_get_tftp_files: []
 #  - url: file:///path/to/a/kernel
