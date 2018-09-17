@@ -1,8 +1,8 @@
-======================
- DNSMasq Ansible Role
-======================
+=======================
+ Ansible Role: dnsmasq
+=======================
 
-This ansible role handles installing and configuring a DNSMasq server to provide a DHCP server, internal DNS, and PXE boot server.
+This ansible role handles installing and configuring a Dnsmasq server to provide a DHCP server, internal DNS, and PXE boot server.
 
 ----------------
  Role Variables
@@ -14,7 +14,7 @@ Key role variables are documented with their default values below. See ``default
 
     dnsmasq_domain_name: ""
 
-The domain name of the internal network you intend to run this DNSMasq instance on.
+The domain name of the internal network you intend to run this Dnsmasq instance on.
 
 ::
 
@@ -28,7 +28,7 @@ A list of dictionarys defining the networks which will be served by DHCP. For ea
 
     dnsmasq_firewalld_zone: "internal"
 
-Which firewall zone the various DNSMasq services should be added to.
+Which firewall zone the various Dnsmasq services should be added to.
 
 ::
     
@@ -60,3 +60,31 @@ A list of dictionaries defining files which should be downloaded to the TFTP dir
     dnsmasq_pxe_menu: []
 
 A list of dictionaries defining lines to appear in the PXE menu. By default, the menu will only contain a "Boot local OS" option. Required keys in each dictionary are: ``name`` the name of the PXE Option, ``label`` the label for the Option in the menu, ``kernel`` the kernel or other file to download from the PXE server and execute. The additional keys may optionally be included: ``initrd`` path to an initrd for the kernel to download from the PXE server, and ``append`` any parameters to pass to the kernel.
+
+------------------
+ Example Playbook
+------------------
+
+::
+
+    ---
+    - hosts: localhost
+      vars:
+        dnsmasq_domain_name: "example.com"
+        dnsmasq_host_list:
+            - { address: 10.0.0.11, mac: "00:11:22:33:44:55", name: node1 }
+            - { address: 10.0.0.12, mac: "00:11:22:33:44:66", name: node2 }
+            - { address: 10.0.0.13, mac: "00:11:22:33:44:77", name: node3, tag: nodefroute }
+        dnsmasq_provide_pxe: True
+        dnsmasq_get_tftp_files:
+            - url: "http://example.com/centos/initrd.img"
+              dest: "centos/initrd.img"
+            - url: "http://example.com/centos/vmlinuz"
+              dest: "centos/vmlinuz"
+        dnsmasq_pxe_menu:
+            - name: centos
+              label: Install CentOS
+              kernel: centos/vmlinuz
+              initrd: centos/initrd.img
+      roles:
+        - dnsmasq
