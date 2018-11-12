@@ -1,5 +1,7 @@
 ---
-- block:
+
+- become: True
+  block:
 
   - name: Install dnsmasq
     yum:
@@ -100,4 +102,3 @@
       - dns
       - tftp
 
-  become: True
