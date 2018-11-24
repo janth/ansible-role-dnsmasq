@@ -1,41 +1,13 @@
 # {{ ansible_managed }}
 # Configuration file for dnsmasq.
-#
-# Format is one option per line, legal options are the same
-# as the long options legal on the command line. See
-# "/usr/sbin/dnsmasq --help" or "man 8 dnsmasq" for details.
 
-# Never forward plain names (without a dot or domain part)
 domain-needed
-# Never forward addresses in the non-routed address spaces.
 bogus-priv
 
-# Change this line if you want dns to get its upstream servers from
-# somewhere other that /etc/resolv.conf
-#resolv-file=
-
-# If you want dnsmasq to change uid and gid to something other
-# than the default, edit the following lines.
-#user=
-#group=
-
-# If you want dnsmasq to listen for DHCP and DNS requests only on
-# specified interfaces (and the loopback) give the name of the
-# interface (eg eth0) here.
-# Repeat the line for more than one interface.
 {% for interface in dnsmasq_listen_interfaces %}
 interface={{ interface }}
 {% endfor %}
 
-# If you don't want dnsmasq to read /etc/hosts, uncomment the
-# following line.
-#no-hosts
-# or if you want it to read another file, as well as /etc/hosts, use
-# this.
-#addn-hosts=/etc/dnsmasq.hosts
-
-# Set this (and domain: see below) if you want to have a domain
-# automatically added to simple names in a hosts-file.
 expand-hosts
 domain={{ dnsmasq_domain_name }}
 
@@ -46,40 +18,14 @@ dhcp-range={% if 'tag' in range %}set:{{ range.tag }},{% endif %}{{ range.networ
 
 # Static DHCP Leases
 {% for host in dnsmasq_host_list %}
-dhcp-host={{ host.mac }},{{ host.name }},{{ host.address }},{{ dnsmasq_lease_time }}{% if 'tag' in host %},set:{{ host.tag }}{% endif %}
+dhcp-host={{ host.mac }},{{ host.name }},{{ host.address }},{{ dnsmasq_lease_time }}
+    {%- if 'tag' in host %},set:{{ host.tag }}{% endif %}
 
 {% endfor %}
 
-# Ignore any clients which are not specified in dhcp-host lines
-# or /etc/ethers. Equivalent to ISC "deny unknown-clients".
-# This relies on the special "known" tag which is set when
-# a host is matched.
-dhcp-ignore=tag:!known
-
-# Set the DHCP server to authoritative mode. In this mode it will barge in
-# and take over the lease for any client which broadcasts on the network,
-# whether it has a record of the lease or not. This avoids long timeouts
-# when a machine wakes up on a new network. DO NOT enable this if there's
-# the slightest chance that you might end up accidentally configuring a DHCP
-# server for your campus/company accidentally. The ISC server uses
-# the same option, and this URL provides more information:
-# http://www.isc.org/files/auth.html
 dhcp-authoritative
-
+dhcp-ignore=tag:!known
 dhcp-option=tag:nodefroute,option:router
-# Run an executable when a DHCP lease is created or destroyed.
-# The arguments sent to the script are "add" or "del",
-# then the MAC address, the IP address and finally the hostname
-# if there is one.
-#dhcp-script=/bin/echo
-
-# Set the limit on DHCP leases, the default is 150
-#dhcp-lease-max=150
-
-# The DHCP server needs somewhere on disk to keep its lease database.
-# This defaults to a sane location, but if you want to change it, use
-# the line below.
-#dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 
 {% if dnsmasq_provide_pxe %}
 enable-tftp
@@ -89,24 +35,5 @@ dhcp-match=efiboot,option:client-arch,7
 
 dhcp-boot=tag:efiboot,grubx64.efi
 dhcp-boot=tag:!efiboot,pxelinux.0
-
 {% endif %}
-# Set the cachesize here.
-#cache-size=150
 
-# For debugging purposes, log each DNS query as it passes through
-# dnsmasq.
-#log-queries
-
-# Log lots of extra information about DHCP transactions.
-#log-dhcp
-
-# Include another lot of configuration options.
-#conf-file=/etc/dnsmasq.more.conf
-#conf-dir=/etc/dnsmasq.d
-
-# Include all the files in a directory except those ending in .bak
-#conf-dir=/etc/dnsmasq.d,.bak
-
-# Include all files in a directory which end in .conf
-#conf-dir=/etc/dnsmasq.d/,*.conf
