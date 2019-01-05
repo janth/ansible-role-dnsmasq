@@ -14,8 +14,8 @@ dnsmasq_host_list: []
 
 dnsmasq_lease_time: "12h"
 
-dnsmasq_listen_interfaces:
-  - "eth0"
+dnsmasq_listen_interfaces: []
+#  - "eth0"
 
 dnsmasq_provide_pxe: False
 

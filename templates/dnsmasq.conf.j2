@@ -11,9 +11,11 @@ interface={{ interface }}
 expand-hosts
 domain={{ dnsmasq_domain_name }}
 
-# Static DHCP Ranges
+# DHCP Ranges
 {% for range in dnsmasq_dhcp_ranges %}
-dhcp-range={% if 'tag' in range %}set:{{ range.tag }},{% endif %}{{ range.network }},static
+dhcp-range={% if 'tag' in range %}set:{{ range.tag }},{% endif %}{{ range.network }}
+    {%- if 'static' in range and range.static %},static{% endif %}
+
 {% endfor %}
 
 # Static DHCP Leases
@@ -24,7 +26,6 @@ dhcp-host={{ host.mac }},{{ host.name }},{{ host.address }},{{ dnsmasq_lease_tim
 {% endfor %}
 
 dhcp-authoritative
-dhcp-ignore=tag:!known
 dhcp-option=tag:nodefroute,option:router
 
 {% if dnsmasq_provide_pxe %}
@@ -32,7 +33,6 @@ enable-tftp
 tftp-root={{ dnsmasq_tftp_path }}
 
 dhcp-match=efiboot,option:client-arch,7
-
 dhcp-boot=tag:efiboot,grubx64.efi
 dhcp-boot=tag:!efiboot,pxelinux.0
 {% endif %}
