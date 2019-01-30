@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+# Set serial console settings
+SERIAL 0 115200
+
+# Use color menu
+DEFAULT {{ item.default | default(dnsmasq_pxe_menu_default) }}
+
+# only show boot prompt if certain key is held down, or caps/scroll is on
+PROMPT 0
+
+# Time out in tenths of a second, so 30 sec here
+TIMEOUT 300
+
+# Always boot after 1 minute
+TOTALTIMEOUT 600
+
+# Default image if we run out of time
+ONTIMEOUT {{ item.ontimeout | default(dnsmasq_pxe_menu_ontimeout) }}
+
+MENU TITLE {{ dnsmasq_pxe_title }}
+
+LABEL BootLocal
+    MENU LABEL Boot Local OS
+    localboot 0
+
+{% for entry in item.menu %}
+LABEL {{ entry.name }}
+    MENU LABEL {{ entry.label }}
+    KERNEL {{ entry.kernel }}
+    {% if 'initrd' in entry %}INITRD {{ entry.initrd }}{% endif %}{{ '' }}
+    {% if 'append' in entry %}APPEND {{ entry.append }}{% endif %}
+
+{% endfor %}

@@ -25,7 +25,7 @@ if sleep --interruptible 0 ; then
   timeout=300
 fi
 
-default={{ dnsmasq_pxe_menu_ontimeout }}
+default={{ item.ontimeout|default('Bootlocal') }}
 
 menuentry "Bootlocal" --id Bootlocal {
   unset root
@@ -69,11 +69,11 @@ menuentry "Bootlocal" --id Bootlocal {
   fi
 }
 
-{% for item in dnsmasq_pxe_menu %}
-menuentry '{{ item.label }}' --id {{ item.name }} {
-  linuxefi {{ item.kernel }} {% if 'append' in item %}-- {{ item.append }}{% endif %}
+{% for entry in item.menu %}
+menuentry '{{ entry.label }}' --id {{ entry.name }} {
+  linuxefi {{ entry.kernel }} {% if 'append' in entry %}-- {{ entry.append }}{% endif %}
   
-  {% if 'initrd' in item %}initrdefi {{ item.initrd }}{% endif %}
+  {% if 'initrd' in entry %}initrdefi {{ entry.initrd }}{% endif %}
 
 }
 

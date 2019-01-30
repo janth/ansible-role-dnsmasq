@@ -15,12 +15,14 @@ domain={{ dnsmasq_domain_name }}
 {% for range in dnsmasq_dhcp_ranges %}
 dhcp-range={% if 'tag' in range %}set:{{ range.tag }},{% endif %}{{ range.network }}
     {%- if 'static' in range and range.static %},static{% endif %}
+    {%- if 'netmask' in range %},{{ range.netmask }}{% endif %}
 
 {% endfor %}
 
 # Static DHCP Leases
 {% for host in dnsmasq_host_list %}
-dhcp-host={{ host.mac }},{{ host.name }},{{ host.address }},{{ dnsmasq_lease_time }}
+dhcp-host={% if 'mac' in host %}{{ host.mac }},{% endif -%}
+    {{ host.name }},{{ host.address }},{{ dnsmasq_lease_time }}
     {%- if 'tag' in host %},set:{{ host.tag }}{% endif %}
 
 {% endfor %}

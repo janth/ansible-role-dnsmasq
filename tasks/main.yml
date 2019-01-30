@@ -39,6 +39,20 @@
       loop:
         - { src: pxe-default.j2, dest: pxelinux.cfg/default }
         - { src: grub.cfg.j2, dest: grub.cfg }
+ 
+    - name: Render any extra PXE menus
+      template:
+        src: "pxe-extra.j2"
+        dest: "{{ dnsmasq_tftp_path }}/pxelinux.cfg/{{ item.postfix }}"
+        mode: 0644
+      loop: "{{ dnsmasq_extra_pxe_menus }}"
+
+    - name: Render any extra Grub configs
+      template:
+        src: "grub.cfg-extra.j2"
+        dest: "{{ dnsmasq_tftp_path }}/grub.cfg-{{ item.postfix }}"
+        mode: 0644
+      loop: "{{ dnsmasq_extra_pxe_menus }}"
 
     - name: Make directories for any files that should be on the TFTP server
       file:
@@ -74,6 +88,10 @@
       path: /etc/hosts
       block: |
         {% for host in dnsmasq_host_list %}
+        {{ host.address }}  {{ host.name }}.{{ dnsmasq_domain_name }} {{ host.name }}
+        {% endfor %}
+
+        {% for host in dnsmasq_etc_hosts %}
         {{ host.address }}  {{ host.name }}.{{ dnsmasq_domain_name }} {{ host.name }}
         {% endfor %}
     register: dnsmasq_hosts_result
