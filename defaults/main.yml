@@ -21,6 +21,8 @@ dnsmasq_lease_time: "12h"
 dnsmasq_listen_interfaces: []
 #  - "eth0"
 
+dnsmasq_authoritative_interface: False
+
 dnsmasq_provide_pxe: False
 
 dnsmasq_tftp_path: "/var/opt/tftpboot"

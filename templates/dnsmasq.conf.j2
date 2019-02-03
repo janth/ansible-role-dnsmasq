@@ -39,3 +39,8 @@ dhcp-boot=tag:efiboot,grubx64.efi
 dhcp-boot=tag:!efiboot,pxelinux.0
 {% endif %}
 
+{% if dnsmasq_authoritative_interface %}
+auth-server={{ dnsmasq_domain_name }},{{ dnsmasq_authoritative_interface }}
+interface-name={{ dnsmasq_domain_name }},{{ dnsmasq_authoritative_interface }}
+auth-zone={{ dnsmasq_domain_name }},{{ ','.join(dnsmasq_listen_interfaces) }}
+{% endif %}
