@@ -23,7 +23,12 @@ dnsmasq_listen_interfaces: []
 
 dnsmasq_authoritative_interface: False
 
+dnsmasq_provide_dhcp: False
 dnsmasq_provide_pxe: False
+dnsmasq_conf_locals: []
+dnsmasq_conf_servers: []
+dnsmasq_upstream_servers: []
+dnsmasq_addn_hosts: []
 
 dnsmasq_tftp_path: "/var/opt/tftpboot"
 

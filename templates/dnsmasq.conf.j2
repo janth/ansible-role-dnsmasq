@@ -3,14 +3,47 @@
 
 domain-needed
 bogus-priv
+filterwin2k
+no-resolv
+no-poll
+selfmx
+log-queries
+log-facility=/var/log/dnsmasq.log
+
+{% for local in dnsmasq_conf_locals %}
+local={{ local }}
+{% endfor %}
 
 {% for interface in dnsmasq_listen_interfaces %}
 interface={{ interface }}
 {% endfor %}
-
 expand-hosts
 domain={{ dnsmasq_domain_name }}
 
+{%- for addn in dnsmasq_addn_hosts %}
+
+addn-hosts={{ addn }}
+{% endfor %}
+
+{% if dnsmasq_upstream_servers is defined %}
+{% if dnsmasq_upstream_servers is iterable %}
+{% for host in dnsmasq_upstream_servers %}
+{% if host.domain is defined %}
+server=/{{ host.domain }}/{{ host.server }}
+{% else %}
+server={{ host }}
+{% endif %}
+{% endfor %}
+{% else %}
+server={{ dnsmasq_upstream_servers }}
+{% endif %}
+{% endif %}
+
+
+{% if dnsmasq_provide_dhcp %}
+{% if dnsmasq_authoritative %}
+dhcp-authoritative
+{% endif %}
 # DHCP Ranges
 {% for range in dnsmasq_dhcp_ranges %}
 dhcp-range={% if 'tag' in range %}set:{{ range.tag }},{% endif %}{{ range.network }}
@@ -26,10 +59,9 @@ dhcp-host={% if 'mac' in host %}{{ host.mac }},{% endif -%}
     {%- if 'tag' in host %},set:{{ host.tag }}{% endif %}
 
 {% endfor %}
-
 dhcp-authoritative
 dhcp-option=tag:nodefroute,option:router
-
+{% endif %}
 {% if dnsmasq_provide_pxe %}
 enable-tftp
 tftp-root={{ dnsmasq_tftp_path }}
@@ -38,7 +70,6 @@ dhcp-match=efiboot,option:client-arch,7
 dhcp-boot=tag:efiboot,grubx64.efi
 dhcp-boot=tag:!efiboot,pxelinux.0
 {% endif %}
-
 {% if dnsmasq_authoritative_interface %}
 auth-server={{ dnsmasq_domain_name }},{{ dnsmasq_authoritative_interface }}
 interface-name={{ dnsmasq_domain_name }},{{ dnsmasq_authoritative_interface }}

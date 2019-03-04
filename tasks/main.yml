@@ -39,7 +39,7 @@
       loop:
         - { src: pxe-default.j2, dest: pxelinux.cfg/default }
         - { src: grub.cfg.j2, dest: grub.cfg }
- 
+
     - name: Render any extra PXE menus
       template:
         src: "pxe-extra.j2"
@@ -95,6 +95,7 @@
         {{ host.address }}  {{ host.name }}.{{ dnsmasq_domain_name }} {{ host.name }}
         {% endfor %}
     register: dnsmasq_hosts_result
+    when: dnsmasq_conf_etc_hosts
 
   - name: Restart dnsmasq when the configs change
     systemd:
@@ -107,7 +108,7 @@
       name: dnsmasq.service
       state: started
       enabled: True
-  
+
   - name: Open firewall ports
     firewalld:
       service: "{{ item }}"
@@ -119,4 +120,9 @@
       - dhcp
       - dns
       - tftp
+    when: dnsmasq_conf_firewalld
 
+  - name: Logrotate config for dnsmasq
+    copy:
+      src: dnsmasq-logrotate.conf
+      dest: /etc/logrotate.d/dnsmasq.conf
